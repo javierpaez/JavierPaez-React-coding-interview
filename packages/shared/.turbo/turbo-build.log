@@ -1,0 +1,4 @@
+
+> react-coding-interview-shared@1.0.0 build
+> rimraf _dist && tsc
+

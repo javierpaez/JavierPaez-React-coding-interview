@@ -20,20 +20,23 @@ export function useContactList(pageSize = 20): ContactListResult {
   });
 
   const fetchNextPage = async () => {
-    if (!state.fetching && state.hasMore) {
-      const nextPage = state.currentPage + 1;
+    if (state.fetching || !state.hasMore) return;
+    const nextPage = state.currentPage + 1;
 
-      setState((s) => ({ ...s, fetching: true }));
+    setState((s) => ({ ...s, fetching: true }));
 
+    try {
       const resp = await contactsClient.list(nextPage, pageSize);
       const newContacts = [...state.contacts.data, ...resp.data];
 
       setState({
         fetching: false,
-        hasMore: resp.totalCount > 0,
+        hasMore: newContacts.length < resp.totalCount,
         contacts: { data: newContacts, totalCount: resp.totalCount },
         currentPage: nextPage,
       });
+    } catch (error) {
+      setState((s) => ({ ...s, fetching: false }));
     }
   };
 
